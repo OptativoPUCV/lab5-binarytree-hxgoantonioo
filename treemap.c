@@ -89,14 +89,83 @@ void insertTreeMap(TreeMap * tree, void* key, void * value)
     }
 }
 
-TreeNode * minimum(TreeNode * x){
-
-    return NULL;
+TreeNode * minimum(TreeNode * x)
+{
+    while (x->left != NULL)
+    {
+        x = x->left;
+    }
+    return x;
 }
 
 
-void removeNode(TreeMap * tree, TreeNode* node) {
-
+void removeNode(TreeMap * tree, TreeNode* node)
+{
+    if (tree == NULL || node == NULL) return;
+    if (node->left == NULL && node->right == NULL)
+    {
+        if (node->parent == NULL)
+        {
+            tree->root = NULL;
+        }
+        else
+        {
+            if (node->parent->left == node)
+            {
+                node->parent->left = NULL;
+            }
+            else
+            {
+                node->parent->right = NULL;
+            }
+        }
+        free(node->pair->key);
+        free(node->pair->value);
+        free(node->pair);
+        free(node);
+    }
+    else
+    {
+        if (node->left != NULL && node->right != NULL)
+        {
+            TreeNode * min = minimum(node->right);
+            node->pair->key = min->pair->key;
+            node->pair->value = min->pair->value;
+            removeNode(tree, min);
+        }
+        else
+        {
+            TreeNode * child;
+            if (node->left != NULL)
+            {
+                child = node->left;
+            }
+            else
+            {
+                child = node->right;
+            }
+            child->parent = node->parent;
+            if (node->parent == NULL)
+            {
+                tree->root = child;
+            }
+            else
+            {
+                if (node == node->parent->left)
+                {
+                    node->parent->left = child;
+                }
+                else
+                {
+                    node->parent->right = child;
+                }
+            }
+            free(node->pair->key);
+            free(node->pair->value);
+            free(node->pair);
+            free(node);
+        }
+    }
 }
 
 void eraseTreeMap(TreeMap * tree, void* key){
