@@ -100,39 +100,50 @@ TreeNode * minimum(TreeNode * x)
 
 
 void removeNode(TreeMap* tree, TreeNode* node) {
-    if (tree == NULL || node == NULL) return;
-
-    if (node->left == NULL && node->right == NULL) {
-        // Node has no children
-        if (node->parent == NULL) {
-            tree->root = NULL;
-        } else {
-            if (node == node->parent->left) {
-                node->parent->left = NULL;
-            } else {
-                node->parent->right = NULL;
-            }
-        }
-    } else if (node->left != NULL && node->right != NULL) {
-        // Node has two children
-        TreeNode* min = minimum(node->right);
-        node->pair->key = min->pair->key;
-        node->pair->value = min->pair->value;
-        removeNode(tree, min);
+if (tree == NULL || node == NULL) return;
+if (node->left == NULL && node->right == NULL) {
+    // Node has no children
+    if (node->parent == NULL) {
+        tree->root = NULL;
     } else {
-        // Node has one child
-        TreeNode* child = (node->left != NULL) ? node->left : node->right;
-        child->parent = node->parent;
-        if (node->parent == NULL) {
-            tree->root = child;
+        if (node == node->parent->left) {
+            node->parent->left = NULL;
         } else {
-            if (node == node->parent->left) {
-                node->parent->left = child;
-            } else {
-                node->parent->right = child;
-            }
+            node->parent->right = NULL;
         }
     }
+} else if (node->left != NULL && node->right != NULL) {
+    // Node has two children
+    TreeNode* min = minimum(node->right);
+    node->pair->key = min->pair->key;
+    node->pair->value = min->pair->value;
+    if (min->parent == node) {
+        node->right = min->right;
+        if (min->right != NULL) {
+            min->right->parent = node;
+        }
+    } else {
+        min->parent->left = min->right;
+        if (min->right != NULL) {
+            min->right->parent = min->parent;
+        }
+    }
+    free(min->pair);
+    free(min);
+} else {
+    // Node has one child
+    TreeNode* child = (node->left != NULL) ? node->left : node->right;
+    child->parent = node->parent;
+    if (node->parent == NULL) {
+        tree->root = child;
+    } else {
+        if (node == node->parent->left) {
+            node->parent->left = child;
+        } else {
+            node->parent->right = child;
+        }
+    }
+}
 
     // Free memory
     free(node->pair);
