@@ -102,6 +102,7 @@ TreeNode * minimum(TreeNode * x)
 void removeNode(TreeMap * tree, TreeNode* node)
 {
     if (tree == NULL || node == NULL) return;
+
     if (node->left == NULL && node->right == NULL)
     {
         if (node->parent == NULL)
@@ -110,7 +111,7 @@ void removeNode(TreeMap * tree, TreeNode* node)
         }
         else
         {
-            if (node->parent->left == node)
+            if (node == node->parent->left)
             {
                 node->parent->left = NULL;
             }
@@ -120,44 +121,35 @@ void removeNode(TreeMap * tree, TreeNode* node)
             }
         }
     }
+    else if (node->left != NULL && node->right != NULL)
+    {
+        TreeNode * min = minimum(node->right);
+        node->pair->key = min->pair->key;
+        node->pair->value = min->pair->value;
+        removeNode(tree, min);
+    }
     else
     {
-        if (node->left != NULL && node->right != NULL)
+        TreeNode * child = (node->left != NULL) ? node->left : node->right;
+        child->parent = node->parent;
+        if (node->parent == NULL)
         {
-            TreeNode * min = minimum(node->right);
-            node->pair->key = min->pair->key;
-            node->pair->value = min->pair->value;
-            removeNode(tree, min);
+            tree->root = child;
         }
         else
         {
-            TreeNode * child;
-            if (node->left != NULL)
+            if (node == node->parent->left)
             {
-                child = node->left;
+                node->parent->left = child;
             }
             else
             {
-                child = node->right;
-            }
-            child->parent = node->parent;
-            if (node->parent == NULL)
-            {
-                tree->root = child;
-            }
-            else
-            {
-                if (node == node->parent->left)
-                {
-                    node->parent->left = child;
-                }
-                else
-                {
-                    node->parent->right = child;
-                }
+                node->parent->right = child;
             }
         }
     }
+    free(node->pair->key);
+    free(node->pair->value);
     free(node->pair);
     free(node);
 }
